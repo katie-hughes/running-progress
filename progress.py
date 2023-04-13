@@ -21,15 +21,15 @@ maximum = max(total_miles_lst+days)
 
 # Plot Cumulative Miles
 
-plot_cumulative = False
+plot_cumulative = True
 
 if plot_cumulative:
-    plt.scatter(days, total_miles_lst, color='g', label='Cumulative Miles')
-    plt.plot((1,maximum),(1, maximum), color='r', label='Goal')
+    plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
     for i in range(0, len(total_miles_lst)-1):
         # plt.plot((days[i],days[i+1]), (total_miles_lst[i],total_miles_lst[i+1]), linestyle='dashed',color='g')
-        plt.plot((days[i],days[i+1]), (total_miles_lst[i],total_miles_lst[i]), linestyle='dashed',color='g')
-        plt.plot((days[i+1],days[i+1]), (total_miles_lst[i],total_miles_lst[i+1]), linestyle='dashed',color='g')
+        plt.plot((days[i],days[i+1]), (total_miles_lst[i],total_miles_lst[i]), linestyle='dashed',color='gray')
+        plt.plot((days[i+1],days[i+1]), (total_miles_lst[i],total_miles_lst[i+1]), linestyle='dashed',color='gray')
+    plt.scatter(days, total_miles_lst, color='k', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles')
     plt.legend()
@@ -44,12 +44,12 @@ if plot_difference:
     diff = []
     for i in range(0, len(total_miles_lst)):
         diff.append(days[i] - total_miles_lst[i])
-    plt.scatter(days, diff, color='k', label='Runs')
     for i in range(len(diff)):
         color = 'g'
         if diff[i] > 0:
             color='r'
         plt.plot((days[i],days[i]), (0,diff[i]), linestyle='dashed',color=color)
+    plt.scatter(days, diff, color='k', label='Runs')
     plt.axhline(0, color='b', label='Goal')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
