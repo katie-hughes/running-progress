@@ -40,7 +40,7 @@ maximum = max(total_miles_lst+days)
 
 # Plot Cumulative Miles
 
-plot_cumulative = False
+plot_cumulative = True
 
 if plot_cumulative:
     plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
@@ -53,11 +53,11 @@ if plot_cumulative:
     plt.ylabel('# Miles')
     plt.legend()
     plt.savefig('cumulative-miles')
-    plt.show()
+    plt.close()
 
 # Plot difference from ideal
 
-plot_difference = False
+plot_difference = True
 
 if plot_difference:
     diff = []
@@ -74,9 +74,29 @@ if plot_difference:
     plt.ylabel('# Miles Away from Goal')
     plt.legend()
     plt.savefig('delta-miles')
-    plt.show()
+    plt.close()
 
 # Plot Average Pace
+
+def colorcode_pacing(day, pace):
+    color = None
+    if pace > 11.5:
+        color='red'
+    elif pace > 11:
+        color='orange'
+    elif pace > 10.5:
+        color='gold'
+    elif pace > 10:
+        color='lime'
+    elif pace > 9.5:
+        color='green'
+    else:
+        color='blue'
+    plt.axhline(8,  color='gray', alpha=0.01)
+    plt.axhline(9,  color='gray', alpha=0.01)
+    plt.axhline(10, color='gray', alpha=0.01)
+    plt.axhline(11, color='gray', alpha=0.01)
+    plt.plot((day,day), (0,pace), linestyle='dashed',color=color, alpha=0.75)
 
 plot_pacing = True
 avg_pace = []
@@ -91,15 +111,24 @@ if plot_pacing:
         fastest_pace_mins.append(fastest_pace[i]/60.0)
         # mins = int(avg_pace[i]//60)
         # secs = avg_pace[i] - mins*60
-        # print(f"Avg Pace Day {days[i]}: {avg_pace[i]} {mins}:{secs}")
-    plt.scatter(days, avg_pace_mins)
+        # print(f"Day {days[i]}: {avg_pace[i]} {mins}:{secs}")
+
+    for i in range(len(avg_pace_mins)):
+        colorcode_pacing(days[i], avg_pace_mins[i])
+    plt.scatter(days, avg_pace_mins, color='k')
+    plt.ylim(bottom=7.5)
     plt.xlabel('Days of 2023')
     plt.ylabel('Avg Pace (mins/mile)')
+    plt.title("Average Pacing")
     plt.savefig("average-pacing")
-    plt.show()
+    plt.close()
 
-    plt.scatter(days, fastest_pace_mins)
+    for i in range(len(fastest_pace_mins)):
+        colorcode_pacing(days[i], fastest_pace_mins[i])
+    plt.scatter(days, fastest_pace_mins, color='k')
+    plt.ylim(bottom=7.5)
     plt.xlabel('Days of 2023')
     plt.ylabel('Fastest Mile (mins/mile)')
+    plt.title("Fastest Mile Pace")
     plt.savefig("fastest-pacing")
-    plt.show()
+    plt.close()
