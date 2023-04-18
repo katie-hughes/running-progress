@@ -52,6 +52,7 @@ if plot_cumulative:
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles')
     plt.legend()
+    plt.title("Cumulative Miles Ran")
     plt.savefig('cumulative-miles')
     plt.close()
 
@@ -73,6 +74,7 @@ if plot_difference:
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend()
+    plt.title("Distance from Goal Mileage")
     plt.savefig('delta-miles')
     plt.close()
 
