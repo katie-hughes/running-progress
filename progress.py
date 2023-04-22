@@ -62,6 +62,9 @@ plot_difference = True
 
 if plot_difference:
     diff = []
+    plt.axhline(10, color='gray', alpha=0.2)
+    plt.axhline(20, color='gray', alpha=0.2)
+    plt.axhline(30, color='gray', alpha=0.2)
     for i in range(0, len(total_miles_lst)):
         diff.append(days[i] - total_miles_lst[i])
     for i in range(len(diff)):
@@ -114,6 +117,7 @@ if plot_pacing:
         # mins = int(avg_pace[i]//60)
         # secs = avg_pace[i] - mins*60
         # print(f"Day {days[i]}: {avg_pace[i]} {mins}:{secs}")
+
 
     for i in range(len(avg_pace_mins)):
         colorcode_pacing(days[i], avg_pace_mins[i])
