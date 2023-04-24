@@ -69,8 +69,14 @@ if plot_difference:
         diff.append(days[i] - total_miles_lst[i])
     for i in range(len(diff)):
         color = 'g'
-        if diff[i] > 0:
+        if diff[i] > 30:
+            color='maroon'
+        elif diff[i] > 20:
             color='r'
+        elif diff[i] > 10: 
+            color='orange'
+        elif diff[i] > 0:
+            color='gold'
         plt.plot((days[i],days[i]), (0,diff[i]), linestyle='dashed',color=color)
     plt.scatter(days, diff, color='k', label='Runs')
     plt.axhline(0, color='b', label='Goal')
