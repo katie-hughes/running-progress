@@ -77,7 +77,7 @@ if plot_difference:
             color='orange'
         elif diff[i] > 0:
             color='gold'
-        plt.plot((days[i],days[i]), (0,diff[i]), linestyle='dashed',color=color)
+        plt.plot((days[i],days[i]), (0,diff[i]), color=color)
     plt.scatter(days, diff, color='k', label='Runs')
     plt.axhline(0, color='b', label='Goal')
     plt.xlabel('Days of 2023')
@@ -107,7 +107,29 @@ def colorcode_pacing(day, pace):
     plt.axhline(9,  color='gray', alpha=0.01)
     plt.axhline(10, color='gray', alpha=0.01)
     plt.axhline(11, color='gray', alpha=0.01)
-    plt.plot((day,day), (0,pace), linestyle='dashed',color=color, alpha=0.75)
+    plt.plot((day,day), (0,pace), color=color, alpha=0.75)
+    plt.scatter(day, pace, color=color, alpha=0.75)
+    return color
+
+def pacing_lines():
+    for i in range(7, 12):
+        plt.axhline(i,  color='gray', alpha=0.3)
+
+
+
+def colormap(pace):
+    # range from (1,0,0) to (0,1,0)
+    # max: 12 min: 6
+    # 6 -> 0 -> (0,0,1) (blue)
+    # 12 -> 1 -> (1,0,0) (red)
+    scaled = (np.array(pace) - 6)/6
+    # print(scaled)
+    red = scaled
+    blue = 1 - red
+    return [(red[i], 0, blue[i]) for i in range(len(scaled))]
+
+
+
 
 plot_pacing = True
 avg_pace = []
@@ -125,20 +147,24 @@ if plot_pacing:
         # print(f"Day {days[i]}: {avg_pace[i]} {mins}:{secs}")
 
 
-    for i in range(len(avg_pace_mins)):
-        colorcode_pacing(days[i], avg_pace_mins[i])
-    plt.scatter(days, avg_pace_mins, color='k')
-    plt.ylim(bottom=7.5)
+    # for i in range(len(avg_pace_mins)):
+    #     c = colorcode_pacing(days[i], avg_pace_mins[i])
+    # plt.scatter(days, avg_pace_mins, color='k')
+    pacing_lines()
+    plt.bar(days, avg_pace_mins, color=colormap(avg_pace_mins))
+    plt.ylim(bottom=6.0)
     plt.xlabel('Days of 2023')
     plt.ylabel('Avg Pace (mins/mile)')
     plt.title("Average Pacing")
     plt.savefig("average-pacing")
     plt.close()
 
-    for i in range(len(fastest_pace_mins)):
-        colorcode_pacing(days[i], fastest_pace_mins[i])
-    plt.scatter(days, fastest_pace_mins, color='k')
-    plt.ylim(bottom=7.5)
+    # for i in range(len(fastest_pace_mins)):
+    #     c = colorcode_pacing(days[i], fastest_pace_mins[i])
+    # plt.scatter(days, fastest_pace_mins, c=fastest_pace_mins, cmap='rainbow')
+    pacing_lines()
+    plt.bar(days, fastest_pace_mins, color=colormap(fastest_pace_mins))
+    plt.ylim(bottom=6.0)
     plt.xlabel('Days of 2023')
     plt.ylabel('Fastest Mile (mins/mile)')
     plt.title("Fastest Mile Pace")
