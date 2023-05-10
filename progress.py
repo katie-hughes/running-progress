@@ -58,6 +58,20 @@ if plot_cumulative:
 
 # Plot difference from ideal
 
+def colormap_difference(diff):
+    def help(d):
+        if d <= 0:
+            return 'green'
+        elif d > 30:
+            return 'maroon'
+        elif d > 20:
+            return 'red'
+        elif d > 10: 
+            return 'orange'
+        elif d > 0:
+            return 'gold'
+    return [help(d) for d in diff]
+
 plot_difference = True
 
 if plot_difference:
@@ -67,22 +81,12 @@ if plot_difference:
     plt.axhline(30, color='gray', alpha=0.2)
     for i in range(0, len(total_miles_lst)):
         diff.append(days[i] - total_miles_lst[i])
-    for i in range(len(diff)):
-        color = 'g'
-        if diff[i] > 30:
-            color='maroon'
-        elif diff[i] > 20:
-            color='r'
-        elif diff[i] > 10: 
-            color='orange'
-        elif diff[i] > 0:
-            color='gold'
-        plt.plot((days[i],days[i]), (0,diff[i]), color=color)
-    plt.scatter(days, diff, color='k', label='Runs')
-    plt.axhline(0, color='b', label='Goal')
+    plt.bar(days, diff, color=colormap_difference(diff))
+    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(diff))+' days behind\nBest: '
+                                                  +str(abs(min(diff)))+' days ahead')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
-    plt.legend()
+    plt.legend(loc='upper left')
     plt.title("Distance from Goal Mileage")
     plt.savefig('delta-miles')
     plt.close()
@@ -122,7 +126,9 @@ def colormap(pace):
     # max: 12 min: 6
     # 6 -> 0 -> (0,0,1) (blue)
     # 12 -> 1 -> (1,0,0) (red)
-    scaled = (np.array(pace) - 6)/6
+    fastest = 7
+    slowest = 12
+    scaled = (np.array(pace) - fastest)/(slowest-fastest)
     # print(scaled)
     red = scaled
     blue = 1 - red
