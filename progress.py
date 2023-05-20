@@ -1,12 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-days = []
-miles = []
-total_miles_lst = []
-total_miles = 0
 
-pacing = []
+df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
 # parse file
 
@@ -15,12 +12,6 @@ with open('progress.txt') as f:
         spl = l.split()
         day = int(spl[0])
         dist = int(spl[1])
-
-        days.append(day)
-        miles.append(dist)
-
-        total_miles += dist
-        total_miles_lst.append(total_miles)
 
         day_pacing = []
         for i in range(dist):
@@ -34,9 +25,25 @@ with open('progress.txt') as f:
                 day_pacing.append(pace_in_seconds)
             except:
                 pass
-        pacing.append(day_pacing)
+        
+        while(day - 1 != len(df.index)):
+            df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], np.nan, np.nan, np.nan],dtype=object)
+            # df = df.append({'day':len(df.index)+1, 'miles':0}, ignore_index=True) 
+        
+        # put this when day - 1 == index
+        df.loc[len(df.index)] = np.array([day, dist, day_pacing, np.mean(day_pacing), np.min(day_pacing), np.max(day_pacing)],dtype=object)
 
-maximum = max(total_miles_lst+days)
+df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
+
+df['cumulative_miles'] = df['miles'].cumsum()
+
+df['difference'] = df['day'] - df['cumulative_miles']
+
+for label in ['average', 'fastest', 'slowest']:
+    df[label+'_mins'] = df[label]/60.0
+
+
+maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 
 # Plot Cumulative Miles
 
@@ -44,11 +51,7 @@ plot_cumulative = True
 
 if plot_cumulative:
     plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
-    for i in range(0, len(total_miles_lst)-1):
-        # plt.plot((days[i],days[i+1]), (total_miles_lst[i],total_miles_lst[i+1]), linestyle='dashed',color='g')
-        plt.plot((days[i],days[i+1]), (total_miles_lst[i],total_miles_lst[i]), linestyle='dashed',color='gray')
-        plt.plot((days[i+1],days[i+1]), (total_miles_lst[i],total_miles_lst[i+1]), linestyle='dashed',color='gray')
-    plt.scatter(days, total_miles_lst, color='k', label='Cumulative Miles')
+    plt.plot(df['day'], df['cumulative_miles'], color='k', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles')
     plt.legend()
@@ -79,11 +82,9 @@ if plot_difference:
     plt.axhline(10, color='gray', alpha=0.2)
     plt.axhline(20, color='gray', alpha=0.2)
     plt.axhline(30, color='gray', alpha=0.2)
-    for i in range(0, len(total_miles_lst)):
-        diff.append(days[i] - total_miles_lst[i])
-    plt.bar(days, diff, color=colormap_difference(diff))
-    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(diff))+' days behind\nBest: '
-                                                  +str(abs(min(diff)))+' days ahead')
+    plt.bar(df['day'], df['difference'], color=colormap_difference(df['difference']))
+    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(df['difference']))+' days behind\nBest: '
+                                                   +str(abs(min(df['difference'])))+' days ahead')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper left')
@@ -93,33 +94,9 @@ if plot_difference:
 
 # Plot Average Pace
 
-def colorcode_pacing(day, pace):
-    color = None
-    if pace > 11.5:
-        color='red'
-    elif pace > 11:
-        color='orange'
-    elif pace > 10.5:
-        color='gold'
-    elif pace > 10:
-        color='lime'
-    elif pace > 9.5:
-        color='green'
-    else:
-        color='blue'
-    plt.axhline(8,  color='gray', alpha=0.01)
-    plt.axhline(9,  color='gray', alpha=0.01)
-    plt.axhline(10, color='gray', alpha=0.01)
-    plt.axhline(11, color='gray', alpha=0.01)
-    plt.plot((day,day), (0,pace), color=color, alpha=0.75)
-    plt.scatter(day, pace, color=color, alpha=0.75)
-    return color
-
 def pacing_lines():
     for i in range(7, 12):
         plt.axhline(i,  color='gray', alpha=0.3)
-
-
 
 def colormap(pace):
     # range from (1,0,0) to (0,1,0)
@@ -135,44 +112,16 @@ def colormap(pace):
     return [(red[i], 0, blue[i]) for i in range(len(scaled))]
 
 
-
-
 plot_pacing = True
-avg_pace = []
-avg_pace_mins = []
-fastest_pace = []
-fastest_pace_mins = []
+
 if plot_pacing:
-    for i in range(0, len(days)):
-        avg_pace.append(np.mean(pacing[i]))
-        avg_pace_mins.append(avg_pace[i]/60.0)
-        fastest_pace.append(min(pacing[i]))
-        fastest_pace_mins.append(fastest_pace[i]/60.0)
-        # mins = int(avg_pace[i]//60)
-        # secs = avg_pace[i] - mins*60
-        # print(f"Day {days[i]}: {avg_pace[i]} {mins}:{secs}")
 
-
-    # for i in range(len(avg_pace_mins)):
-    #     c = colorcode_pacing(days[i], avg_pace_mins[i])
-    # plt.scatter(days, avg_pace_mins, color='k')
-    pacing_lines()
-    plt.bar(days, avg_pace_mins, color=colormap(avg_pace_mins))
-    plt.ylim(bottom=6.0)
-    plt.xlabel('Days of 2023')
-    plt.ylabel('Avg Pace (mins/mile)')
-    plt.title("Average Pacing")
-    plt.savefig("average-pacing")
-    plt.close()
-
-    # for i in range(len(fastest_pace_mins)):
-    #     c = colorcode_pacing(days[i], fastest_pace_mins[i])
-    # plt.scatter(days, fastest_pace_mins, c=fastest_pace_mins, cmap='rainbow')
-    pacing_lines()
-    plt.bar(days, fastest_pace_mins, color=colormap(fastest_pace_mins))
-    plt.ylim(bottom=6.0)
-    plt.xlabel('Days of 2023')
-    plt.ylabel('Fastest Mile (mins/mile)')
-    plt.title("Fastest Mile Pace")
-    plt.savefig("fastest-pacing")
-    plt.close()
+    for label in ['average', 'fastest', 'slowest']:
+        pacing_lines()
+        plt.bar(df['day'], df[label+'_mins'], color=colormap(df[label+'_mins']))
+        plt.ylim(bottom=6.0)
+        plt.xlabel('Days of 2023')
+        plt.ylabel(label.capitalize()+' Pace (mins/mile)')
+        plt.title(label.capitalize()+" Pacing")
+        plt.savefig(label+"-pacing")
+        plt.close()
