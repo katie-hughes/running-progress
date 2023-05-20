@@ -77,12 +77,16 @@ def colormap_difference(diff):
 
 plot_difference = True
 
+df_nonzero = df[df["miles"] != 0]
+df_zero = df[df["miles"] == 0]
+
 if plot_difference:
     diff = []
     plt.axhline(10, color='gray', alpha=0.2)
     plt.axhline(20, color='gray', alpha=0.2)
     plt.axhline(30, color='gray', alpha=0.2)
-    plt.bar(df['day'], df['difference'], color=colormap_difference(df['difference']))
+    plt.bar(df_nonzero['day'], df_nonzero['difference'], color=colormap_difference(df_nonzero['difference']))
+    plt.bar(df_zero['day'], df_zero['difference'], color=colormap_difference(df_zero['difference']), alpha=0.25)
     plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(df['difference']))+' days behind\nBest: '
                                                    +str(abs(min(df['difference'])))+' days ahead')
     plt.xlabel('Days of 2023')
