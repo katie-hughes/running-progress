@@ -1,7 +1,13 @@
+import matplotlib.colors as mplc
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from datetime import date
 
+start_date = date(2022, 12, 31)
+todays_date = date.today()
+ndays = (todays_date - start_date).days
+print(f"Days of 2023: {ndays}")
 
 df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
@@ -33,6 +39,12 @@ with open('progress.txt') as f:
         # put this when day - 1 == index
         df.loc[len(df.index)] = np.array([day, dist, day_pacing, np.mean(day_pacing), np.min(day_pacing), np.max(day_pacing)],dtype=object)
 
+
+while(ndays > len(df.index)):
+    df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], np.nan, np.nan, np.nan],dtype=object)
+
+print(df.info)
+
 df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
 
 df['cumulative_miles'] = df['miles'].cumsum()
@@ -62,6 +74,8 @@ if plot_cumulative:
 # Plot difference from ideal
 
 def colormap_difference(diff):
+    # I want a way of doing this that is continuous
+    
     def help(d):
         if d <= 0:
             return 'green'
@@ -80,6 +94,23 @@ plot_difference = True
 df_nonzero = df[df["miles"] != 0]
 df_zero = df[df["miles"] == 0]
 
+
+
+cdict = {'red':   [(0.0,  0.0, 0.0),
+                       (0.5,  1.0, 1.0),
+                       (1.0,  1.0, 1.0)],
+
+             'green': [(0.0,  0.0, 0.0),
+                       (0.25, 0.0, 0.0),
+                       (0.75, 1.0, 1.0),
+                       (1.0,  1.0, 1.0)],
+
+             'blue':  [(0.0,  0.0, 0.0),
+                       (0.5,  0.0, 0.0),
+                       (1.0,  1.0, 1.0)]}
+my_colormap = mplc.LinearSegmentedColormap('my_colormap',cdict,256)
+# print(my_colormap)
+
 if plot_difference:
     diff = []
     plt.axhline(10, color='gray', alpha=0.2)
@@ -87,8 +118,8 @@ if plot_difference:
     plt.axhline(30, color='gray', alpha=0.2)
     plt.bar(df_nonzero['day'], df_nonzero['difference'], color=colormap_difference(df_nonzero['difference']))
     plt.bar(df_zero['day'], df_zero['difference'], color=colormap_difference(df_zero['difference']), alpha=0.25)
-    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(df['difference']))+' days behind\nBest: '
-                                                   +str(abs(min(df['difference'])))+' days ahead')
+    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(df['difference']))+' behind\nBest: '
+                                                   +str(abs(min(df['difference'])))+' ahead')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper left')
