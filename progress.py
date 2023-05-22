@@ -7,7 +7,6 @@ from datetime import date
 start_date = date(2022, 12, 31)
 todays_date = date.today()
 ndays = (todays_date - start_date).days
-print(f"Days of 2023: {ndays}")
 
 df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
@@ -43,8 +42,6 @@ with open('progress.txt') as f:
 while(ndays > len(df.index)):
     df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], np.nan, np.nan, np.nan],dtype=object)
 
-print(df.info)
-
 df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
 
 df['cumulative_miles'] = df['miles'].cumsum()
@@ -53,6 +50,10 @@ df['difference'] = df['day'] - df['cumulative_miles']
 
 for label in ['average', 'fastest', 'slowest']:
     df[label+'_mins'] = df[label]/60.0
+
+
+print(f"Days of 2023:\t{ndays}")
+print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
 
 
 maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
