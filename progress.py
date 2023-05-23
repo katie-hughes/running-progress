@@ -1,8 +1,15 @@
 import matplotlib.colors as mplc
 import matplotlib.pyplot as plt
+import argparse
 import numpy as np
 import pandas as pd
 from datetime import date
+
+
+
+parser = argparse.ArgumentParser(description='Solve a sudoku! :D')
+parser.add_argument('-a', '--add', action='store_true', help='Add a new run!')
+args = parser.parse_args()
 
 start_date = date(2022, 12, 31)
 todays_date = date.today()
@@ -11,6 +18,13 @@ ndays = (todays_date - start_date).days
 df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
 # parse file
+
+def convert_miletime(str):
+    mile_time_spl = str.split(':')
+    minutes = int(mile_time_spl[0])
+    seconds = int(mile_time_spl[1])
+    pace_in_seconds = minutes*60 + seconds
+    return pace_in_seconds
 
 with open('progress.txt') as f:
     for l in f.readlines():
@@ -21,13 +35,8 @@ with open('progress.txt') as f:
         day_pacing = []
         for i in range(dist):
             try:
-                mile_time = spl[i+2]
-                mile_time_spl = mile_time.split(':')
-                minutes = int(mile_time_spl[0])
-                seconds = int(mile_time_spl[1])
-                pace_in_seconds = minutes*60 + seconds
                 # print(f"Minutes: {minutes}, seconds: {seconds}, total {pace_in_seconds}")
-                day_pacing.append(pace_in_seconds)
+                day_pacing.append(convert_miletime(spl[i+2]))
             except:
                 pass
         
@@ -44,7 +53,29 @@ while(ndays > len(df.index)):
 
 df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
 
+
+
+if args.add is True:
+    print("Add a new run!")
+    while True:
+        try:
+            day_add = input(f"What day is this for? (Today is {ndays}): ")
+            day_add = int(day_add)
+            print(f"You selected: {day_add}")
+            miles_add = input("How many miles? ")
+            miles_add = int(miles_add)
+            print(f"You ran {miles_add}")
+            miletimes_add = []
+            for i in range(miles_add):
+                miletime_add = input(f"Mile {i+1} time (mm:ss): ")
+                miletime_add = convert_miletime(miletime_add)
+                miletimes_add.append(miletime_add)
+            break
+        except:
+            print("Invalid input, try again!")
+
 df['cumulative_miles'] = df['miles'].cumsum()
+
 
 df['difference'] = df['day'] - df['cumulative_miles']
 
@@ -54,6 +85,7 @@ for label in ['average', 'fastest', 'slowest']:
 
 print(f"Days of 2023:\t{ndays}")
 print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
+
 
 
 maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
