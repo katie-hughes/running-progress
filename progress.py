@@ -15,6 +15,8 @@ start_date = date(2022, 12, 31)
 todays_date = date.today()
 ndays = (todays_date - start_date).days
 
+fname = 'progress.txt'
+
 df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
 # parse file
@@ -26,7 +28,7 @@ def convert_miletime(str):
     pace_in_seconds = minutes*60 + seconds
     return pace_in_seconds
 
-with open('progress.txt') as f:
+with open(fname) as f:
     for l in f.readlines():
         spl = l.split()
         day = int(spl[0])
@@ -61,15 +63,23 @@ if args.add is True:
         try:
             day_add = input(f"What day is this for? (Today is {ndays}): ")
             day_add = int(day_add)
-            print(f"You selected: {day_add}")
             miles_add = input("How many miles? ")
             miles_add = int(miles_add)
-            print(f"You ran {miles_add}")
             miletimes_add = []
+            miletimes_add_str = []
             for i in range(miles_add):
                 miletime_add = input(f"Mile {i+1} time (mm:ss): ")
+                miletimes_add_str.append(miletime_add)
                 miletime_add = convert_miletime(miletime_add)
                 miletimes_add.append(miletime_add)
+            input_string = str(day_add)+' '+str(miles_add)
+            for i in miletimes_add_str:
+                input_string+=' '+i
+            print(f"Your input is:\n{input_string}")
+            c = input("Press q to cancel this, and anything else to add! ")
+            if c != 'q':
+                print("Adding!")
+                # don't add it if the date already exists in fname
             break
         except:
             print("Invalid input, try again!")
@@ -151,8 +161,13 @@ if plot_difference:
     plt.axhline(30, color='gray', alpha=0.2)
     plt.bar(df_nonzero['day'], df_nonzero['difference'], color=colormap_difference(df_nonzero['difference']))
     plt.bar(df_zero['day'], df_zero['difference'], color=colormap_difference(df_zero['difference']), alpha=0.25)
-    plt.axhline(0, color='b', label='Goal\nWorst: '+str(max(df['difference']))+' behind\nBest: '
-                                                   +str(abs(min(df['difference'])))+' ahead')
+    worst = max(df['difference'])
+    worst_desc = 'behind' if worst > 0 else 'ahead'
+    best = min(df['difference'])
+    best_desc = 'behind' if best > 0 else 'ahead'
+    today = df['difference'].iloc[-1]
+    today_desc = 'behind' if today > 0 else 'ahead'
+    plt.axhline(0, color='b', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper left')
