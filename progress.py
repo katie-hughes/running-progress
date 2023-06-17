@@ -187,9 +187,8 @@ def colormap(pace):
     # 6 -> 0 -> (0,0,1) (blue)
     # 12 -> 1 -> (1,0,0) (red)
     fastest = 7
-    slowest = 12
+    slowest = 13
     scaled = (np.array(pace) - fastest)/(slowest-fastest)
-    # print(scaled)
     red = scaled
     blue = 1 - red
     return [(red[i], 0, blue[i]) for i in range(len(scaled))]
