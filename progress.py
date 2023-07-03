@@ -152,7 +152,11 @@ cdict = {'red':   [(0.0,  0.0, 0.0),
                        (0.5,  0.0, 0.0),
                        (1.0,  1.0, 1.0)]}
 my_colormap = mplc.LinearSegmentedColormap('my_colormap',cdict,256)
-# print(my_colormap)
+# print(my_colormap(1.0))
+# print(my_colormap(0.5))
+# print(my_colormap(0.0))
+
+
 
 if plot_difference:
     diff = []
