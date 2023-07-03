@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 from datetime import date
 
-
-
 parser = argparse.ArgumentParser(description='Solve a sudoku! :D')
 parser.add_argument('-a', '--add', action='store_true', help='Add a new run!')
 args = parser.parse_args()
@@ -55,8 +53,6 @@ while(ndays > len(df.index)):
 
 df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
 
-
-
 if args.add is True:
     print("Add a new run!")
     while True:
@@ -85,18 +81,13 @@ if args.add is True:
             print("Invalid input, try again!")
 
 df['cumulative_miles'] = df['miles'].cumsum()
-
-
 df['difference'] = df['day'] - df['cumulative_miles']
 
 for label in ['average', 'fastest', 'slowest']:
     df[label+'_mins'] = df[label]/60.0
 
-
 print(f"Days of 2023:\t{ndays}")
 print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
-
-
 
 maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 
@@ -160,17 +151,17 @@ my_colormap = mplc.LinearSegmentedColormap('my_colormap',cdict,256)
 
 if plot_difference:
     diff = []
-    plt.axhline(10, color='gray', alpha=0.2)
-    plt.axhline(20, color='gray', alpha=0.2)
-    plt.axhline(30, color='gray', alpha=0.2)
-    plt.bar(df_nonzero['day'], df_nonzero['difference'], color=colormap_difference(df_nonzero['difference']))
-    plt.bar(df_zero['day'], df_zero['difference'], color=colormap_difference(df_zero['difference']), alpha=0.25)
+    for i in range(0, 31, 10):
+        plt.axhline(i, color='gray', alpha=0.2)
+    plt.bar(df['day'], df['difference'], color=my_colormap(df['difference']/50.0))
+
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
     best = min(df['difference'])
     best_desc = 'behind' if best > 0 else 'ahead'
     today = df['difference'].iloc[-1]
     today_desc = 'behind' if today > 0 else 'ahead'
+
     plt.axhline(0, color='b', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
@@ -185,26 +176,15 @@ def pacing_lines():
     for i in range(7, 12):
         plt.axhline(i,  color='gray', alpha=0.3)
 
-def colormap(pace):
-    # range from (1,0,0) to (0,1,0)
-    # max: 12 min: 6
-    # 6 -> 0 -> (0,0,1) (blue)
-    # 12 -> 1 -> (1,0,0) (red)
-    fastest = 7
-    slowest = 13
-    scaled = (np.array(pace) - fastest)/(slowest-fastest)
-    red = scaled
-    blue = 1 - red
-    return [(red[i], 0, blue[i]) for i in range(len(scaled))]
-
-
 plot_pacing = True
 
 if plot_pacing:
 
     for label in ['average', 'fastest', 'slowest']:
         pacing_lines()
-        plt.bar(df['day'], df[label+'_mins'], color=colormap(df[label+'_mins']))
+
+        # continuous colors
+        plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'], cmap=my_colormap)
         plt.ylim(bottom=6.0)
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
