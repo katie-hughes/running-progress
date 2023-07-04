@@ -184,10 +184,22 @@ if plot_pacing:
         pacing_lines()
 
         # continuous colors
-        plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'], cmap=my_colormap)
+        plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'])
         plt.ylim(bottom=6.0)
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
         plt.title(label.capitalize()+" Pacing")
         plt.savefig(label+"-pacing")
         plt.close()
+
+    for day in df['day']:
+        d = day - 1
+        # print(f"Day: {day} Miles: {df['miles'][d]}")
+        if df['miles'][d] > 0:
+            nmiles = len(df['times'][d])
+            plt.scatter([day]*nmiles, np.array(df['times'][d])/60.0) # , c=[df['average_mins'][d]]*nmiles)
+    plt.xlabel('Days of 2023')
+    plt.ylabel('Paces (mins/mile)')
+    plt.title("Total Pacing")
+    plt.savefig("total-pacing")
+    plt.close()
