@@ -15,6 +15,8 @@ ndays = (todays_date - start_date).days
 
 fname = 'progress.txt'
 
+images_path = 'plots/'
+
 df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
 
 # parse file
@@ -102,7 +104,7 @@ if plot_cumulative:
     plt.ylabel('# Miles')
     plt.legend()
     plt.title("Cumulative Miles Ran")
-    plt.savefig('cumulative-miles')
+    plt.savefig(images_path+'cumulative-miles')
     plt.close()
 
 # Plot difference from ideal
@@ -167,7 +169,7 @@ if plot_difference:
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper left')
     plt.title("Distance from Goal Mileage")
-    plt.savefig('delta-miles')
+    plt.savefig(images_path+'delta-miles')
     plt.close()
 
 # Plot Average Pace
@@ -189,7 +191,7 @@ if plot_pacing:
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
         plt.title(label.capitalize()+" Pacing")
-        plt.savefig(label+"-pacing")
+        plt.savefig(images_path+label+"-pacing")
         plt.close()
 
     for day in df['day']:
@@ -201,5 +203,5 @@ if plot_pacing:
     plt.xlabel('Days of 2023')
     plt.ylabel('Paces (mins/mile)')
     plt.title("Total Pacing")
-    plt.savefig("total-pacing")
+    plt.savefig(images_path+"total-pacing")
     plt.close()
