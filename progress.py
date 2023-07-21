@@ -146,26 +146,13 @@ plot_difference = True
 df_nonzero = df[df["miles"] != 0]
 df_zero = df[df["miles"] == 0]
 
-
-
-cdict = {'red':   [(0.0,  0.0, 0.0),
-                       (0.5,  1.0, 1.0),
-                       (1.0,  1.0, 1.0)],
-
-             'green': [(0.0,  0.0, 0.0),
-                       (0.25, 0.0, 0.0),
-                       (0.75, 1.0, 1.0),
-                       (1.0,  1.0, 1.0)],
-
-             'blue':  [(0.0,  0.0, 0.0),
-                       (0.5,  0.0, 0.0),
-                       (1.0,  1.0, 1.0)]}
-my_colormap = mplc.LinearSegmentedColormap('my_colormap',cdict,256)
-# print(my_colormap(1.0))
-# print(my_colormap(0.5))
-# print(my_colormap(0.0))
-
-
+my_colormap = mplc.LinearSegmentedColormap.from_list('custom', 
+                                       [(0, 'green'),
+                                        (0.25, 'yellow'),
+                                        (0.5, 'orange'),
+                                        (0.75, 'red'),
+                                        (1,   'maroon')], 
+                                        N=1000)
 
 if plot_difference:
     diff = []
@@ -174,7 +161,7 @@ if plot_difference:
     # df difference: map from 0 to 1
     # c=df[label+'_mins']
     # (X - np.mean(X))/(np.max(X) - np.min(X))
-    plt.bar(df['day'], df['difference'], width=1.0, color=my_colormap(df['difference']/50.0))
+    plt.bar(df['day'], df['difference'], width=1.0, color=my_colormap(df['difference']/np.max(df['difference'])))
 
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
