@@ -174,7 +174,7 @@ if plot_difference:
     # df difference: map from 0 to 1
     # c=df[label+'_mins']
     # (X - np.mean(X))/(np.max(X) - np.min(X))
-    plt.bar(df['day'], df['difference'], color=my_colormap(df['difference']/50.0))
+    plt.bar(df['day'], df['difference'], width=1.0, color=my_colormap(df['difference']/50.0))
 
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
