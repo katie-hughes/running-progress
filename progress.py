@@ -17,7 +17,7 @@ fname = 'progress.txt'
 
 images_path = 'plots/'
 
-df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'average': [], 'fastest': [], 'slowest': []})
+df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'times_str': [], 'average': [], 'fastest': [], 'slowest': []})
 
 # parse file
 
@@ -35,23 +35,25 @@ with open(fname) as f:
         dist = int(spl[1])
 
         day_pacing = []
+        raw_times = []
         for i in range(dist):
             try:
                 # print(f"Minutes: {minutes}, seconds: {seconds}, total {pace_in_seconds}")
                 day_pacing.append(convert_miletime(spl[i+2]))
+                raw_times.append(spl[i+2])
             except:
                 pass
         
         while(day - 1 != len(df.index)):
-            df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], np.nan, np.nan, np.nan],dtype=object)
+            df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], [], np.nan, np.nan, np.nan],dtype=object)
             # df = df.append({'day':len(df.index)+1, 'miles':0}, ignore_index=True) 
         
         # put this when day - 1 == index
-        df.loc[len(df.index)] = np.array([day, dist, day_pacing, np.mean(day_pacing), np.min(day_pacing), np.max(day_pacing)],dtype=object)
+        df.loc[len(df.index)] = np.array([day, dist, day_pacing, raw_times, np.mean(day_pacing), np.min(day_pacing), np.max(day_pacing)],dtype=object)
 
 
 while(ndays > len(df.index)):
-    df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], np.nan, np.nan, np.nan],dtype=object)
+    df.loc[len(df.index)] = np.array([len(df.index)+1, 0, [], [], np.nan, np.nan, np.nan],dtype=object)
 
 df[["day", "miles", "average", "fastest", "slowest"]] = df[["day", "miles", "average", "fastest", "slowest"]].apply(pd.to_numeric)
 
@@ -88,8 +90,22 @@ df['difference'] = df['day'] - df['cumulative_miles']
 for label in ['average', 'fastest', 'slowest']:
     df[label+'_mins'] = df[label]/60.0
 
-print(f"Days of 2023:\t{ndays}")
-print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
+todays_miles = df['miles'][ndays-1]
+if (todays_miles > 0):
+    print("Running 365 miles in 2023!")
+    print()
+    print(f"Day: {ndays}/365")
+    print(f"Miles: {np.max(df['cumulative_miles'])}/365")
+    print()
+    print(f"Today: {todays_miles} miles")
+    for i,mile_time in enumerate(df['times_str'][ndays-1]):
+        if i < todays_miles - 1:
+            print(mile_time, end='/')
+        else:
+            print(mile_time)
+else:
+    print(f"Days of 2023:\t{ndays}")
+    print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
 
 maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 
@@ -155,7 +171,10 @@ if plot_difference:
     diff = []
     for i in range(0, 31, 10):
         plt.axhline(i, color='gray', alpha=0.2)
-    plt.bar(df['day'], df['difference'], color=my_colormap(df['difference']/50.0))
+    # df difference: map from 0 to 1
+    # c=df[label+'_mins']
+    # (X - np.mean(X))/(np.max(X) - np.min(X))
+    plt.bar(df['day'], df['difference'], color=my_colormap(df['difference']/np.max(df['difference'])))
 
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
@@ -164,7 +183,7 @@ if plot_difference:
     today = df['difference'].iloc[-1]
     today_desc = 'behind' if today > 0 else 'ahead'
 
-    plt.axhline(0, color='b', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
+    plt.axhline(0, color='k', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper left')
