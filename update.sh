@@ -4,3 +4,4 @@ python3 progress.py
 git add --a
 git commit -m "update for $todays_date"
 git status
+git push
