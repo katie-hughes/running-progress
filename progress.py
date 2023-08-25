@@ -4,8 +4,22 @@ import argparse
 import numpy as np
 import pandas as pd
 from datetime import date
+import calendar
 
-parser = argparse.ArgumentParser(description='Solve a sudoku! :D')
+year = 2023
+
+def plot_months(current_days, y=0):
+    total_days = 0
+    for month in range(1,13):
+        days_in_month = calendar.monthrange(year, month)[1]
+        # print(days_in_month)
+        total_days += days_in_month
+        if total_days > current_days:
+            return
+        plt.axvline(total_days, color='gray', alpha=0.1)
+        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center')
+
+parser = argparse.ArgumentParser(description='Tracking Runs!')
 parser.add_argument('-a', '--add', action='store_true', help='Add a new run!')
 args = parser.parse_args()
 
@@ -114,6 +128,7 @@ maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 plot_cumulative = True
 
 if plot_cumulative:
+    plot_months(ndays)
     plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
     plt.plot(df['day'], df['cumulative_miles'], color='k', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
@@ -124,23 +139,6 @@ if plot_cumulative:
     plt.close()
 
 # Plot difference from ideal
-
-def colormap_difference(diff):
-    # I want a way of doing this that is continuous
-    
-    def help(d):
-        if d <= 0:
-            return 'green'
-        elif d > 30:
-            return 'maroon'
-        elif d > 20:
-            return 'red'
-        elif d > 10: 
-            return 'orange'
-        elif d > 0:
-            return 'gold'
-    return [help(d) for d in diff]
-
 plot_difference = True
 
 df_nonzero = df[df["miles"] != 0]
@@ -157,7 +155,7 @@ my_colormap = mplc.LinearSegmentedColormap.from_list('custom',
 if plot_difference:
     diff = []
     for i in range(0, 31, 10):
-        plt.axhline(i, color='gray', alpha=0.2)
+        plt.axhline(i, color='gray', alpha=0.1)
     # df difference: map from 0 to 1
     # c=df[label+'_mins']
     # (X - np.mean(X))/(np.max(X) - np.min(X))
@@ -170,6 +168,7 @@ if plot_difference:
     today = df['difference'].iloc[-1]
     today_desc = 'behind' if today > 0 else 'ahead'
 
+    plot_months(ndays, y=-2)
     plt.axhline(0, color='k', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
@@ -182,7 +181,7 @@ if plot_difference:
 
 def pacing_lines():
     for i in range(7, 12):
-        plt.axhline(i,  color='gray', alpha=0.3)
+        plt.axhline(i,  color='gray', alpha=0.1)
 
 plot_pacing = True
 
@@ -190,6 +189,7 @@ if plot_pacing:
 
     for label in ['average', 'fastest', 'slowest']:
         pacing_lines()
+        plot_months(ndays, y=7)
 
         # continuous colors
         plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'])
