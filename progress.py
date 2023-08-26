@@ -172,7 +172,7 @@ if plot_difference:
     plt.axhline(0, color='k', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
-    plt.legend(loc='upper left')
+    plt.legend(loc='upper right')
     plt.title("Distance from Goal Mileage")
     plt.savefig(images_path+'delta-miles')
     plt.close()
