@@ -17,7 +17,7 @@ def plot_months(current_days, y=0):
         if total_days > current_days:
             return
         plt.axvline(total_days, color='gray', alpha=0.1)
-        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center')
+        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center', color='gray', alpha=0.8)
 
 parser = argparse.ArgumentParser(description='Tracking Runs!')
 parser.add_argument('-a', '--add', action='store_true', help='Add a new run!')
@@ -128,7 +128,7 @@ maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 plot_cumulative = True
 
 if plot_cumulative:
-    plot_months(ndays)
+    plot_months(ndays, y=5)
     plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
     plt.plot(df['day'], df['cumulative_miles'], color='k', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
