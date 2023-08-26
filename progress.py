@@ -169,6 +169,7 @@ if plot_difference:
     today_desc = 'behind' if today > 0 else 'ahead'
 
     plot_months(ndays, y=-5)
+    plt.ylim(bottom=-10)
     plt.axhline(0, color='k', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
