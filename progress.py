@@ -13,11 +13,11 @@ def plot_months(current_days, y=0):
     for month in range(1,13):
         days_in_month = calendar.monthrange(year, month)[1]
         # print(days_in_month)
+        plt.axvline(total_days, color='gray', alpha=0.1)
+        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center', color='gray', alpha=0.8)
         total_days += days_in_month
         if total_days > current_days:
             return
-        plt.axvline(total_days, color='gray', alpha=0.1)
-        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center', color='gray', alpha=0.8)
 
 parser = argparse.ArgumentParser(description='Tracking Runs!')
 parser.add_argument('-a', '--add', action='store_true', help='Add a new run!')
