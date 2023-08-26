@@ -128,7 +128,8 @@ maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 plot_cumulative = True
 
 if plot_cumulative:
-    plot_months(ndays)
+    plot_months(ndays, y=-12)
+    plt.ylim(bottom=-30, top=maximum*1.1)
     plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
     plt.plot(df['day'], df['cumulative_miles'], color='k', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
