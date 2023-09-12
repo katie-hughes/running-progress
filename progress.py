@@ -160,7 +160,11 @@ if plot_difference:
     # df difference: map from 0 to 1
     # c=df[label+'_mins']
     # (X - np.mean(X))/(np.max(X) - np.min(X))
-    plt.bar(df['day'], df['difference'], width=1.0, color=my_colormap(df['difference']/np.max(df['difference'])))
+    colors = my_colormap(df['difference']/np.max(df['difference']))
+    transparency = [1 if nmiles >0 else 0.75 for nmiles in df['miles']]
+    for i in range(len(df['day'])):
+        plt.bar(df['day'][i], df['difference'][i], width=1.0, color=colors[i],alpha=transparency[i])
+    # plt.bar(df['day'], df['difference'], width=1.0, color=colors)
 
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
@@ -195,7 +199,7 @@ if plot_pacing:
 
         # continuous colors
         plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'])
-        plt.ylim(bottom=6.0)
+        # plt.ylim(bottom=6.0)
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
         plt.title(label.capitalize()+" Pacing")
