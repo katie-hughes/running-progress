@@ -11,3 +11,5 @@ My goal is to run 365 miles in 2023 (an average of one per day). This is a fun w
 ![Fastest Pace](plots/fastest-pacing.png)
 
 ![Slowest Pace](plots/slowest-pacing.png)
+
+![Distribution of Paces](plots/pacing-distribution.png)

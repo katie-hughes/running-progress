@@ -185,8 +185,8 @@ if plot_difference:
 
 # Plot Average Pace
 
-def pacing_lines():
-    for i in range(7, 12):
+def pacing_lines(min=7, max=12):
+    for i in range(int(np.floor(min)), int(np.ceil(max))):
         plt.axhline(i,  color='gray', alpha=0.1)
 
 plot_pacing = True
@@ -194,11 +194,14 @@ plot_pacing = True
 if plot_pacing:
 
     for label in ['average', 'fastest', 'slowest']:
-        pacing_lines()
-        plot_months(ndays, y=7)
+        label_pacing = df[label+'_mins']
+        extent = 0.1
+        pacing_lines(min = (1-extent)*np.min(label_pacing), 
+                     max = (1+extent)*np.max(label_pacing))
+        plot_months(ndays, y=0.9*np.min(label_pacing))
 
         # continuous colors
-        plt.scatter(df['day'], df[label+'_mins'], c=df[label+'_mins'])
+        plt.scatter(df['day'], label_pacing, c=df[label+'_mins'])
         # plt.ylim(bottom=6.0)
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
@@ -217,3 +220,23 @@ if plot_pacing:
     plt.title("Total Pacing")
     plt.savefig(images_path+"total-pacing")
     plt.close()
+
+
+plot_distribution = True
+
+# plot a histogram of all mile times
+
+all_mile_times = []
+
+for t in df['times']:
+    all_mile_times += t
+
+all_mile_times = np.array(all_mile_times,dtype=float)
+all_mile_times /= 60.0
+
+plt.hist(all_mile_times,bins=30)
+plt.title("Distribution of Paces")
+plt.xlabel("Pace (minutes)")
+plt.ylabel("Frequency")
+plt.savefig(images_path+'pacing-distribution')
+plt.close()
