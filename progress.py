@@ -1,10 +1,15 @@
 import matplotlib.colors as mplc
 import matplotlib.pyplot as plt
+import matplotlib.cm as colormaps
 import argparse
 import numpy as np
 import pandas as pd
 from datetime import date
 import calendar
+
+
+# print(plt.style.available)
+plt.style.use('dark_background')
 
 year = 2023
 
@@ -130,8 +135,8 @@ plot_cumulative = True
 if plot_cumulative:
     plot_months(ndays, y=-12)
     plt.ylim(bottom=-30, top=maximum*1.1)
-    plt.plot((1,maximum),(1, maximum), color='b', label='Goal')
-    plt.plot(df['day'], df['cumulative_miles'], color='k', label='Cumulative Miles')
+    plt.plot((1,maximum),(1, maximum), color='white', label='Goal')
+    plt.plot(df['day'], df['cumulative_miles'], color='aqua', label='Cumulative Miles')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles')
     plt.legend(loc='upper left')
@@ -157,14 +162,13 @@ if plot_difference:
     diff = []
     for i in range(0, 31, 10):
         plt.axhline(i, color='gray', alpha=0.1)
-    # df difference: map from 0 to 1
-    # c=df[label+'_mins']
-    # (X - np.mean(X))/(np.max(X) - np.min(X))
-    colors = my_colormap(df['difference']/np.max(df['difference']))
-    transparency = [1 if nmiles >0 else 0.75 for nmiles in df['miles']]
-    for i in range(len(df['day'])):
-        plt.bar(df['day'][i], df['difference'][i], width=1.0, color=colors[i],alpha=transparency[i])
-    # plt.bar(df['day'], df['difference'], width=1.0, color=colors)
+    cmap = colormaps.get_cmap('rainbow')
+    # colors = my_colormap(df['difference']/np.max(df['difference']))
+    colors = cmap(df['difference']/np.max(df['difference']))
+    # transparency = [1 if nmiles >0 else 0.75 for nmiles in df['miles']]
+    # for i in range(len(df['day'])):
+    #     plt.bar(df['day'][i], df['difference'][i], width=1.0, color=colors[i],alpha=transparency[i])
+    plt.bar(df['day'], df['difference'], width=1.0, color=colors)
 
     worst = max(df['difference'])
     worst_desc = 'behind' if worst > 0 else 'ahead'
@@ -175,7 +179,7 @@ if plot_difference:
 
     plot_months(ndays, y=-5)
     plt.ylim(bottom=-10)
-    plt.axhline(0, color='k', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
+    plt.axhline(0, color='white', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper right')
@@ -201,8 +205,7 @@ if plot_pacing:
         plot_months(ndays, y=0.9*np.min(label_pacing))
 
         # continuous colors
-        plt.scatter(df['day'], label_pacing, c=df[label+'_mins'])
-        # plt.ylim(bottom=6.0)
+        plt.scatter(df['day'], label_pacing, c=df[label+'_mins'], cmap='cool')
         plt.xlabel('Days of 2023')
         plt.ylabel(label.capitalize()+' Pace (mins/mile)')
         plt.title(label.capitalize()+" Pacing")
@@ -222,21 +225,20 @@ if plot_pacing:
     plt.close()
 
 
-plot_distribution = True
-
 # plot a histogram of all mile times
+plot_distribution = True
+if plot_distribution:
+    all_mile_times = []
 
-all_mile_times = []
+    for t in df['times']:
+        all_mile_times += t
 
-for t in df['times']:
-    all_mile_times += t
+    all_mile_times = np.array(all_mile_times,dtype=float)
+    all_mile_times /= 60.0
 
-all_mile_times = np.array(all_mile_times,dtype=float)
-all_mile_times /= 60.0
-
-plt.hist(all_mile_times,bins=30)
-plt.title("Distribution of Paces")
-plt.xlabel("Pace (minutes)")
-plt.ylabel("Frequency")
-plt.savefig(images_path+'pacing-distribution')
-plt.close()
+    plt.hist(all_mile_times,bins=50)
+    plt.title("Distribution of Paces")
+    plt.xlabel("Pace (minutes)")
+    plt.ylabel("Frequency")
+    plt.savefig(images_path+'pacing-distribution')
+    plt.close()
