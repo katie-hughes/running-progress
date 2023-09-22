@@ -47,6 +47,9 @@ def convert_miletime(str):
     pace_in_seconds = minutes*60 + seconds
     return pace_in_seconds
 
+def scale(lst):
+    return (lst-np.min(lst))/(np.max(lst)-np.min(lst))
+
 with open(fname) as f:
     for l in f.readlines():
         spl = l.split()
@@ -109,12 +112,13 @@ df['difference'] = df['day'] - df['cumulative_miles']
 for label in ['average', 'fastest', 'slowest']:
     df[label+'_mins'] = df[label]/60.0
 
+total_miles = np.max(df['cumulative_miles'])
 todays_miles = df['miles'][ndays-1]
 if (todays_miles > 0):
     print("Running 365 miles in 2023!")
     print()
     print(f"Day: {ndays}/365")
-    print(f"Miles: {np.max(df['cumulative_miles'])}/365")
+    print(f"Miles: {total_miles}/365")
     print()
     print(f"Today: {todays_miles} miles")
     for i,mile_time in enumerate(df['times_str'][ndays-1]):
@@ -124,7 +128,7 @@ if (todays_miles > 0):
             print(mile_time)
 else:
     print(f"Days of 2023:\t{ndays}")
-    print(f"Current Miles:\t{np.max(df['cumulative_miles'])}")
+    print(f"Current Miles:\t{total_miles}")
 
 maximum = max(np.max(df['day']), np.max(df['cumulative_miles']))
 
@@ -135,8 +139,8 @@ plot_cumulative = True
 if plot_cumulative:
     plot_months(ndays, y=-12)
     plt.ylim(bottom=-30, top=maximum*1.1)
-    plt.plot((1,maximum),(1, maximum), color='white', label='Goal')
-    plt.plot(df['day'], df['cumulative_miles'], color='aqua', label='Cumulative Miles')
+    plt.plot((1,maximum),(1, maximum), color='white', label=f'Goal ({ndays})')
+    plt.plot(df['day'], df['cumulative_miles'], color='aqua', label=f'Cumulative Miles ({total_miles})')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles')
     plt.legend(loc='upper left')
@@ -150,20 +154,11 @@ plot_difference = True
 df_nonzero = df[df["miles"] != 0]
 df_zero = df[df["miles"] == 0]
 
-my_colormap = mplc.LinearSegmentedColormap.from_list('custom', 
-                                       [(0, 'green'),
-                                        (0.25, 'yellow'),
-                                        (0.5, 'orange'),
-                                        (0.75, 'red'),
-                                        (1,   'maroon')], 
-                                        N=1000)
-
 if plot_difference:
     diff = []
     for i in range(0, 31, 10):
         plt.axhline(i, color='gray', alpha=0.1)
     cmap = colormaps.get_cmap('rainbow')
-    # colors = my_colormap(df['difference']/np.max(df['difference']))
     colors = cmap(df['difference']/np.max(df['difference']))
     # transparency = [1 if nmiles >0 else 0.75 for nmiles in df['miles']]
     # for i in range(len(df['day'])):
@@ -179,7 +174,7 @@ if plot_difference:
 
     plot_months(ndays, y=-5)
     plt.ylim(bottom=-10)
-    plt.axhline(0, color='white', label=f'Goal\nWorst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
+    plt.axhline(0, color='white', label=f'Worst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
     plt.legend(loc='upper right')
@@ -224,6 +219,24 @@ if plot_pacing:
     plt.savefig(images_path+"total-pacing")
     plt.close()
 
+    times = list(df['times'])
+    day_list = list(df['day'])
+    box_cmap = colormaps.get_cmap('cool')
+    box_colors = box_cmap(scale(df['average_mins']))
+    for i in range(len(df['times'])):
+        curr_day = df['day'][i]
+        # print(df['day'][i], df['fastest_mins'][i], df['slowest_mins'][i], df['average_mins'][i])
+        if df['miles'][i] > 0:
+            plt.plot([curr_day, curr_day], [df['slowest_mins'][i], df['fastest_mins'][i]], color=box_colors[i], linewidth=2)
+    # plt.boxplot(times, positions=day_list)
+    plot_months(ndays, y=0.8*np.min(df['slowest_mins']))
+    plt.ylim(bottom=0.75*np.min(df['slowest_mins']))
+    plt.title("Daily Pacing")
+    plt.xlabel("Day")
+    plt.ylabel("Pace Distribution")
+    plt.savefig(images_path+"pacing-boxplot")
+    plt.close()
+
 
 # plot a histogram of all mile times
 plot_distribution = True
@@ -241,4 +254,17 @@ if plot_distribution:
     plt.xlabel("Pace (minutes)")
     plt.ylabel("Frequency")
     plt.savefig(images_path+'pacing-distribution')
+    plt.close()
+
+
+plot_daily_miles = True
+if plot_daily_miles:
+    plt.bar(df['day'], df['miles'])
+    plt.axhline(y=0, color='white')
+    plot_months(ndays, y=-1)
+    plt.ylim(bottom=-2)
+    plt.xlabel("Day")
+    plt.ylabel("Miles Per Run")
+    plt.title("Daily Miles")
+    plt.savefig(images_path+'daily-miles')
     plt.close()
