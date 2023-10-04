@@ -259,7 +259,7 @@ if plot_distribution:
 
 plot_daily_miles = True
 if plot_daily_miles:
-    plt.bar(df['day'], df['miles'])
+    plt.scatter(df['day'][df['miles']>0], df['miles'][df['miles']>0], c=df['miles'][df['miles']>0], cmap='cool')
     plt.axhline(y=0, color='white')
     plot_months(ndays, y=-1)
     plt.ylim(bottom=-2)
