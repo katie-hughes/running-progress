@@ -222,12 +222,13 @@ if plot_pacing:
     times = list(df['times'])
     day_list = list(df['day'])
     box_cmap = colormaps.get_cmap('cool')
-    box_colors = box_cmap(scale(df['average_mins']))
+    box_colors_avg = box_cmap(scale(df['average_mins']))
+    box_colors_miles = box_cmap(scale(df['miles']))
     for i in range(len(df['times'])):
         curr_day = df['day'][i]
         # print(df['day'][i], df['fastest_mins'][i], df['slowest_mins'][i], df['average_mins'][i])
         if df['miles'][i] > 0:
-            plt.plot([curr_day, curr_day], [df['slowest_mins'][i], df['fastest_mins'][i]], color=box_colors[i], linewidth=2)
+            plt.plot([curr_day, curr_day], [df['slowest_mins'][i], df['fastest_mins'][i]], color=box_colors_avg[i], linewidth=2)
     # plt.boxplot(times, positions=day_list)
     plot_months(ndays, y=0.8*np.min(df['slowest_mins']))
     plt.ylim(bottom=0.75*np.min(df['slowest_mins']))
@@ -259,12 +260,15 @@ if plot_distribution:
 
 plot_daily_miles = True
 if plot_daily_miles:
-    plt.scatter(df['day'][df['miles']>0], df['miles'][df['miles']>0], c=df['miles'][df['miles']>0], cmap='cool')
+    color_miles = df['miles'][df['miles']>0]
+    color_pace = df['average_mins'][df['miles']>0]
+    plt.scatter(df['day'][df['miles']>0], df['miles'][df['miles']>0], c=color_pace, cmap='cool')
     plt.axhline(y=0, color='white')
+    plt.colorbar()
     plot_months(ndays, y=-1)
     plt.ylim(bottom=-2)
     plt.xlabel("Day")
     plt.ylabel("Miles Per Run")
-    plt.title("Daily Miles")
+    plt.title("Daily Miles & Their Pace")
     plt.savefig(images_path+'daily-miles')
     plt.close()
