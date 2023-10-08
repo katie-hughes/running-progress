@@ -272,3 +272,26 @@ if plot_daily_miles:
     plt.title("Daily Miles & Their Pace")
     plt.savefig(images_path+'daily-miles')
     plt.close()
+
+plot_miles_per_week = True
+if plot_miles_per_week:
+    weeks = []
+    miles_per_week = []
+    current_week = 1
+    current_miles = 0
+    for i in range(len(df['day'])):
+        day_i = df['day'][i]
+        miles_i = df['miles'][i]
+        # print(day_i, day_i % 7, miles_i)
+        current_miles += miles_i
+        if day_i % 7 == 0:
+            weeks.append(current_week)
+            miles_per_week.append(current_miles)
+            current_week += 1
+            current_miles = 0
+    plt.axhline(y=7, color='gray', linestyle='dashed')
+    plt.bar(weeks, miles_per_week)
+    plt.xlabel("Week Number")
+    plt.ylabel("Miles Per Week")
+    plt.title("Weekly Miles")
+    plt.savefig(images_path+'weekly-miles')
