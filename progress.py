@@ -289,6 +289,8 @@ if plot_miles_per_week:
             miles_per_week.append(current_miles)
             current_week += 1
             current_miles = 0
+    weeks.append(current_week)
+    miles_per_week.append(current_miles)
     plt.axhline(y=7, color='gray', linestyle='dashed')
     plt.bar(weeks, miles_per_week)
     plt.xlabel("Week Number")
