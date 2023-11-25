@@ -172,8 +172,8 @@ if plot_difference:
     today = df['difference'].iloc[-1]
     today_desc = 'behind' if today > 0 else 'ahead'
 
-    plot_months(ndays, y=-5)
-    plt.ylim(bottom=-10)
+    plot_months(ndays, y=min(df['difference'])-5)
+    plt.ylim(bottom=min(df['difference'])-10)
     plt.axhline(0, color='white', label=f'Worst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
     plt.xlabel('Days of 2023')
     plt.ylabel('# Miles Away from Goal')
