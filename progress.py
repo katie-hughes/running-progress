@@ -31,6 +31,7 @@ args = parser.parse_args()
 start_date = date(2022, 12, 31)
 todays_date = date.today()
 ndays = (todays_date - start_date).days
+ndays = min(ndays, 365)
 
 fname = 'progress.txt'
 
