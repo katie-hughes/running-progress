@@ -4,7 +4,7 @@ import matplotlib.cm as colormaps
 import argparse
 import numpy as np
 import pandas as pd
-from datetime import date
+from datetime import date, timedelta
 import calendar
 
 
@@ -12,6 +12,9 @@ import calendar
 plt.style.use('dark_background')
 
 year = 2023
+
+def time_string(time_minutes):
+    return f"{int(time_minutes // 1)}:{int((time_minutes % 1)*60):02d}"
 
 def plot_months(current_days, y=0):
     total_days = 0
@@ -250,9 +253,10 @@ if plot_distribution:
 
     all_mile_times = np.array(all_mile_times,dtype=float)
     all_mile_times /= 60.0
-
-    plt.hist(all_mile_times,bins=50)
-    plt.title("Distribution of Paces")
+    pace_label = "Average: " + time_string(np.mean(all_mile_times)) + '\nFastest: ' + time_string(np.min(all_mile_times)) + '\nSlowest: ' + time_string(np.max(all_mile_times))
+    plt.hist(all_mile_times,bins=50, label=pace_label)
+    plt.legend(loc='upper left')
+    plt.title("Pace Distribution")
     plt.xlabel("Pace (minutes)")
     plt.ylabel("Frequency")
     plt.savefig(images_path+'pacing-distribution')
@@ -263,14 +267,17 @@ plot_daily_miles = True
 if plot_daily_miles:
     color_miles = df['miles'][df['miles']>0]
     color_pace = df['average_mins'][df['miles']>0]
-    plt.scatter(df['day'][df['miles']>0], df['miles'][df['miles']>0], c=color_pace, cmap='cool')
+    daily_miles = df['miles'][df['miles']>0]
+    daily_miles_label = "# of runs: " + str(len(daily_miles)) + "\nAverage: " + str(round(np.mean(daily_miles),2)) + ' mi\nShortest: ' + str(np.min(daily_miles)) + ' mi\nLongest: ' + str(np.max(daily_miles)) + ' mi'
+    plt.scatter(df['day'][df['miles']>0], daily_miles, c=color_pace, cmap='cool', label=daily_miles_label)
     plt.axhline(y=0, color='white')
     plt.colorbar()
     plot_months(ndays, y=-1)
     plt.ylim(bottom=-2)
+    plt.legend(loc='upper left')
     plt.xlabel("Day")
     plt.ylabel("Miles Per Run")
-    plt.title("Daily Miles & Their Pace")
+    plt.title("Daily Miles & Average Pace")
     plt.savefig(images_path+'daily-miles')
     plt.close()
 
