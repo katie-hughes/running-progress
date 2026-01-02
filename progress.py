@@ -10,10 +10,7 @@ import calendar
 # print(plt.style.available)
 plt.style.use('dark_background')
 
-year = 2023
-
 # general utility functions
-
 def time_string(time_minutes):
     return f"{int(time_minutes // 1)}:{int((time_minutes % 1)*60):02d}"
 
@@ -26,16 +23,6 @@ def convert_miletime(str):
 
 def scale(lst):
     return (lst-np.min(lst))/(np.max(lst)-np.min(lst))
-
-def plot_months(current_days, y=0):
-    total_days = 0
-    for month in range(1,13):
-        days_in_month = calendar.monthrange(year, month)[1]
-        plt.axvline(total_days, color='gray', alpha=0.1)
-        plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center', color='gray', alpha=0.8)
-        total_days += days_in_month
-        if total_days > current_days:
-            return
 
 def pacing_lines(min=7, max=12):
     for i in range(int(np.floor(min)), int(np.ceil(max))):
@@ -91,11 +78,21 @@ class RunProgress:
         for label in ['average', 'fastest', 'slowest']:
             self.df[label+'_mins'] = self.df[label]/60.0
 
+    def _plot_months(self,current_days, y=0):
+        total_days = 0
+        for month in range(1,13):
+            days_in_month = calendar.monthrange(self.year, month)[1]
+            plt.axvline(total_days, color='gray', alpha=0.1)
+            plt.text(total_days, y, calendar.month_name[month][:3], rotation=90, verticalalignment='center', color='gray', alpha=0.8)
+            total_days += days_in_month
+            if total_days > current_days:
+                return
+
     def print_summary(self):
         total_miles = np.max(self.df['cumulative_miles'])
         todays_miles = self.df['miles'][self.ndays-1]
         if (todays_miles > 0):
-            print("Running 365 miles in 2023!")
+            print(f"Running 365 miles in {self.year}!")
             print()
             print(f"Day: {self.ndays}/365")
             print(f"Miles: {total_miles}/365")
@@ -107,17 +104,17 @@ class RunProgress:
                 else:
                     print(mile_time)
         else:
-            print(f"Days of 2023:\t{self.ndays}")
+            print(f"Days of {self.year}:\t{self.ndays}")
             print(f"Current Miles:\t{total_miles}")
 
     def plot_cumulative_miles(self):
         total_miles = np.max(self.df['cumulative_miles'])
         maximum = max(np.max(self.df['day']), np.max(self.df['cumulative_miles']))
-        plot_months(self.ndays, y=-12)
+        self._plot_months(self.ndays, y=-12)
         plt.ylim(bottom=-30, top=maximum*1.1)
         plt.plot((1,maximum),(1, maximum), color='white', label=f'Goal ({self.ndays})')
         plt.plot(self.df['day'], self.df['cumulative_miles'], color='aqua', label=f'Cumulative Miles ({total_miles})')
-        plt.xlabel('Days of 2023')
+        plt.xlabel(f'Days of {self.year}')
         plt.ylabel('# Miles')
         plt.legend(loc='upper left')
         plt.title("Cumulative Miles Ran")
@@ -139,29 +136,28 @@ class RunProgress:
         today = self.df['difference'].iloc[-1]
         today_desc = 'behind' if today > 0 else 'ahead'
 
-        plot_months(self.ndays, y=min(self.df['difference'])-5)
+        self._plot_months(self.ndays, y=min(self.df['difference'])-5)
         plt.ylim(bottom=min(self.df['difference'])-10)
         plt.axhline(0, color='white', label=f'Worst: {abs(worst)} {worst_desc}\nBest: {abs(best)} {best_desc}\nToday: {abs(today)} {today_desc}')
-        plt.xlabel('Days of 2023')
+        plt.xlabel(f'Days of {self.year}')
         plt.ylabel('# Miles Away from Goal')
         plt.legend(loc='upper right')
         plt.title("Distance from Goal Mileage")
         plt.savefig(self.images_path+'delta-miles')
         plt.close()
 
-# Plot Average Pace
-
+    # Plot Average Pace
     def plot_pacing(self):
         for label in ['average', 'fastest', 'slowest']:
             label_pacing = self.df[label+'_mins']
             extent = 0.1
             pacing_lines(min = (1-extent)*np.min(label_pacing), 
                         max = (1+extent)*np.max(label_pacing))
-            plot_months(self.ndays, y=0.9*np.min(label_pacing))
+            self._plot_months(self.ndays, y=0.9*np.min(label_pacing))
 
             # continuous colors
             plt.scatter(self.df['day'], label_pacing, c=self.df[label+'_mins'], cmap='cool')
-            plt.xlabel('Days of 2023')
+            plt.xlabel(f'Days of {self.year}')
             plt.ylabel(label.capitalize()+' Pace (mins/mile)')
             plt.title(label.capitalize()+" Pacing")
             plt.savefig(self.images_path+label+"-pacing")
@@ -172,7 +168,7 @@ class RunProgress:
             if self.df['miles'][d] > 0:
                 nmiles = len(self.df['times'][d])
                 plt.scatter([day]*nmiles, np.array(self.df['times'][d])/60.0) # , c=[df['average_mins'][d]]*nmiles)
-        plt.xlabel('Days of 2023')
+        plt.xlabel(f'Days of {self.year}')
         plt.ylabel('Paces (mins/mile)')
         plt.title("Total Pacing")
         plt.savefig(self.images_path+"total-pacing")
@@ -184,7 +180,7 @@ class RunProgress:
             curr_day = self.df['day'][i]
             if self.df['miles'][i] > 0:
                 plt.plot([curr_day, curr_day], [self.df['slowest_mins'][i], self.df['fastest_mins'][i]], color=box_colors_avg[i], linewidth=2)
-        plot_months(self.ndays, y=0.8*np.min(self.df['slowest_mins']))
+        self._plot_months(self.ndays, y=0.8*np.min(self.df['slowest_mins']))
         plt.ylim(bottom=0.75*np.min(self.df['slowest_mins']))
         plt.title("Daily Pacing")
         plt.xlabel("Day")
@@ -217,7 +213,7 @@ class RunProgress:
         plt.scatter(self.df['day'][self.df['miles']>0], daily_miles, c=color_pace, cmap='cool', label=daily_miles_label)
         plt.axhline(y=0, color='white')
         plt.colorbar()
-        plot_months(self.ndays, y=-1)
+        self._plot_months(self.ndays, y=-1)
         plt.ylim(bottom=-2)
         plt.legend(loc='upper left')
         plt.xlabel("Day")
@@ -254,9 +250,8 @@ def main():
     parser = argparse.ArgumentParser(description='Tracking Runs!')
     parser.add_argument('-y', '--year', help='Which year?', default=2023)
     args = parser.parse_args()
-    year = args.year
-    print(year)
-
+    year = int(args.year)
+    print(f"{year}")
     run_progress = RunProgress(year=year)
 
     run_progress.print_summary()
