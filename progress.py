@@ -1,10 +1,9 @@
-import matplotlib.colors as mplc
 import matplotlib.pyplot as plt
 import matplotlib.cm as colormaps
 import argparse
 import numpy as np
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date
 import calendar
 
 
