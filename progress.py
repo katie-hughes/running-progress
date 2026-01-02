@@ -248,10 +248,9 @@ class RunProgress:
 
 def main():
     parser = argparse.ArgumentParser(description='Tracking Runs!')
-    parser.add_argument('-y', '--year', help='Which year?', default=2023)
+    parser.add_argument('-y', '--year', help='Which year?', default=date.today().year, type=int)
     args = parser.parse_args()
-    year = int(args.year)
-    print(f"{year}")
+    year = args.year
     run_progress = RunProgress(year=year)
 
     run_progress.print_summary()
