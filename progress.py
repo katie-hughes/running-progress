@@ -51,7 +51,7 @@ class RunProgress:
 
         self.fname = f'{year}/progress.txt'
 
-        self.images_path = f'plots/{year}'
+        self.images_path = f'plots/{year}/'
 
         self.df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'times_str': [], 'average': [], 'fastest': [], 'slowest': []})
         self._parse_file()
