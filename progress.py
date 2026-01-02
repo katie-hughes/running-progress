@@ -7,10 +7,8 @@ from datetime import date
 import calendar
 
 
-# print(plt.style.available)
-plt.style.use('dark_background')
-
 # general utility functions
+
 def time_string(time_minutes):
     return f"{int(time_minutes // 1)}:{int((time_minutes % 1)*60):02d}"
 
@@ -24,9 +22,7 @@ def convert_miletime(str):
 def scale(lst):
     return (lst-np.min(lst))/(np.max(lst)-np.min(lst))
 
-def pacing_lines(min=7, max=12):
-    for i in range(int(np.floor(min)), int(np.ceil(max))):
-        plt.axhline(i,  color='gray', alpha=0.1)
+# main class for parsing file + plotting stats
 
 class RunProgress:
     def __init__(self, year: int) -> None:
@@ -42,6 +38,9 @@ class RunProgress:
 
         self.df = pd.DataFrame({'day': [], 'miles': [], 'times': [], 'times_str': [], 'average': [], 'fastest': [], 'slowest': []})
         self._parse_file()
+
+        # print(plt.style.available)
+        plt.style.use('dark_background')
 
     def _parse_file(self) -> None:
         with open(self.fname) as f:
@@ -146,13 +145,17 @@ class RunProgress:
         plt.savefig(self.images_path+'delta-miles')
         plt.close()
 
+    def _pacing_lines(self, min=7, max=12):
+        for i in range(int(np.floor(min)), int(np.ceil(max))):
+            plt.axhline(i,  color='gray', alpha=0.1)
+
     # Plot Average Pace
     def plot_pacing(self):
         for label in ['average', 'fastest', 'slowest']:
             label_pacing = self.df[label+'_mins']
             extent = 0.1
-            pacing_lines(min = (1-extent)*np.min(label_pacing), 
-                        max = (1+extent)*np.max(label_pacing))
+            self._pacing_lines(min = (1-extent)*np.min(label_pacing), 
+                               max = (1+extent)*np.max(label_pacing))
             self._plot_months(self.ndays, y=0.9*np.min(label_pacing))
 
             # continuous colors
