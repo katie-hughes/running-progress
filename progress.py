@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.cm as colormaps
 import argparse
 import numpy as np
 import pandas as pd
@@ -124,7 +123,7 @@ class RunProgress:
     def plot_difference(self):
         for i in range(0, 31, 10):
             plt.axhline(i, color='gray', alpha=0.1)
-        cmap = colormaps.get_cmap('rainbow')
+        cmap = plt.get_cmap('rainbow')
         colors = cmap(self.df['difference']/np.max(self.df['difference']))
         plt.bar(self.df['day'], self.df['difference'], width=1.0, color=colors)
 
@@ -177,7 +176,7 @@ class RunProgress:
         plt.savefig(self.images_path+"total-pacing")
         plt.close()
 
-        box_cmap = colormaps.get_cmap('cool')
+        box_cmap = plt.get_cmap('cool')
         box_colors_avg = box_cmap(scale(self.df['average_mins']))
         for i in range(len(self.df['times'])):
             curr_day = self.df['day'][i]
