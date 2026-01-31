@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import argparse
 import numpy as np
 import pandas as pd
-from datetime import date
+from datetime import date, datetime
 import calendar
 
 
@@ -21,6 +21,17 @@ def convert_miletime(str):
 def scale(lst):
     return (lst-np.min(lst))/(np.max(lst)-np.min(lst))
 
+def parse_date(date_str: str, year: int) -> int:
+    if date_str.isdigit():
+        return int(date_str)
+    if "/" in date_str:
+        date_spl = date_str.split("/")
+        assert len(date_spl) == 2, "can only parse dates of form month/day"
+        month, day_of_month = date_spl
+        date_representation = date(year, int(month), int(day_of_month))
+        return (date_representation - date(year, 1, 1)).days + 1
+    raise Exception(f"Cant parse date {date_str}")
+
 # main class for parsing file + plotting stats
 
 class RunProgress:
@@ -29,7 +40,7 @@ class RunProgress:
 
         days_in_year = (date(year+1, 1, 1) - date(year, 1, 1)).days
         # days through the year, such that Jan. 1 is day 1
-        self.ndays = min((date.today() - date(year-1, 12, 31)).days, days_in_year)
+        self.ndays = min((date.today() - date(year, 1, 1)).days + 1, days_in_year)
 
         self.fname = f'{year}/progress.txt'
 
@@ -45,7 +56,8 @@ class RunProgress:
         with open(self.fname) as f:
             for l in f.readlines():
                 spl = l.split()
-                day = int(spl[0])
+                day_representation = spl[0]  # look to see if this is an int
+                day = parse_date(day_representation, self.year)
                 dist = int(spl[1])
 
                 day_pacing = []
