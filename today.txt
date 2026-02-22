@@ -1,7 +1,2 @@
-Running 365 miles in 2026!
-
-Day: 31/365
-Miles: 27/365
-
-Today: 3 miles
-11:05/10:55/9:45
+Days of 2026:	53
+Current Miles:	39
